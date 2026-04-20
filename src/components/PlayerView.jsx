@@ -8,6 +8,7 @@ function PlayerView({ song, onBack, currentUserEmail }) {
   const [recognizedText, setRecognizedText] = useState("");
   const [score, setScore] = useState(null);
   const [statusText, setStatusText] = useState("");
+  const [countdown, setCountdown] = useState(null);
   const [duration, setDuration] = useState(song.lyrics[song.lyrics.length - 1].time + 4);
   
   const recognitionRef = useRef(null);
@@ -65,7 +66,24 @@ function PlayerView({ song, onBack, currentUserEmail }) {
     }
   };
 
-  const handleTimeUpdate = (e) => setCurrentTime(e.target.currentTime);
+  const handleTimeUpdate = (e) => {
+    const time = e.target.currentTime;
+    setCurrentTime(time);
+
+    // Countdown logic
+    const firstSingable = song.lyrics.find(l => !l.text.startsWith('('));
+    if (firstSingable) {
+      const waitTime = firstSingable.time - time;
+      if (waitTime > 0 && waitTime <= 3.2) {
+        const seconds = Math.ceil(waitTime);
+        if (seconds !== countdown) {
+          setCountdown(seconds);
+        }
+      } else if (countdown !== null) {
+        setCountdown(null);
+      }
+    }
+  };
   const handleLoadedMetadata = (e) => setDuration(e.target.duration || duration);
   const handleAudioEnded = () => finishSong();
 
@@ -199,6 +217,12 @@ function PlayerView({ song, onBack, currentUserEmail }) {
              {isListening ? 'Sing now...' : 'Tap to start'}
            </div>
         </div>
+
+        {countdown && (
+          <div key={countdown} className="countdown-overlay">
+            {countdown}
+          </div>
+        )}
 
         {song.lyrics.map((lyric, idx) => {
           const isActive = idx === currentLyricIndex;
