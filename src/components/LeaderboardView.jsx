@@ -12,12 +12,21 @@ function LeaderboardView({ currentUserEmail }) {
   const [leaderboard, setLeaderboard] = useState([]);
 
   useEffect(() => {
-    fetch('/api/leaderboard')
-      .then(res => res.json())
-      .then(realUsers => {
-        let allUsers = [...mockUsers];
-        
-        // Add real users
+    const loadLeaderboard = async () => {
+      let realUsers = [];
+      try {
+        const res = await fetch('/api/leaderboard');
+        if (res.ok) {
+          realUsers = await res.json();
+        }
+      } catch (e) {
+        console.log('Leaderboard API not available, using offline mode');
+      }
+
+      let allUsers = [...mockUsers];
+      
+      // Add real users from API
+      if (realUsers && Array.isArray(realUsers)) {
         realUsers.forEach(u => {
           allUsers.push({
             id: u.email,
@@ -28,21 +37,40 @@ function LeaderboardView({ currentUserEmail }) {
             isReal: true
           });
         });
+      }
 
-        // Filter out duplicate mock user if the current user was already inserted
-        if (!realUsers.some(u => u.email === currentUserEmail)) {
-           const saved = localStorage.getItem(`profile_${currentUserEmail}`);
-           let currentUserProfile = { name: currentUserEmail.split('@')[0], totalScore: 0, avatar: '😎' };
-           if (saved) {
-             currentUserProfile = JSON.parse(saved);
-           }
-           allUsers.push({ id: 'me', name: currentUserProfile.name, xp: currentUserProfile.totalScore, avatar: currentUserProfile.avatar, isMe: true, isReal: true });
+      // Ensure current user is always in the list even if API failed/missing
+      if (!realUsers || !realUsers.some(u => u.email === currentUserEmail)) {
+         const saved = localStorage.getItem(`profile_${currentUserEmail}`);
+         let currentUserProfile = { name: currentUserEmail.split('@')[0], totalScore: 0, avatar: '😎' };
+         if (saved) {
+           currentUserProfile = JSON.parse(saved);
+         }
+         allUsers.push({ 
+           id: 'me', 
+           name: currentUserProfile.name, 
+           xp: currentUserProfile.totalScore, 
+           avatar: currentUserProfile.avatar, 
+           isMe: true, 
+           isReal: true 
+         });
+      }
+
+      allUsers.sort((a, b) => b.xp - a.xp);
+      // Remove duplicates if any (by id)
+      const uniqueUsers = [];
+      const seenIds = new Set();
+      allUsers.forEach(u => {
+        if (!seenIds.has(u.id)) {
+          uniqueUsers.push(u);
+          seenIds.add(u.id);
         }
+      });
 
-        allUsers.sort((a, b) => b.xp - a.xp);
-        setLeaderboard(allUsers);
-      })
-      .catch(e => console.error(e));
+      setLeaderboard(uniqueUsers);
+    };
+
+    loadLeaderboard();
   }, [currentUserEmail]);
 
   return (

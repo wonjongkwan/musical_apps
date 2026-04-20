@@ -15,14 +15,10 @@ function LoginView({ onLogin }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
-      if (res.ok) {
-        onLogin(email);
-      } else {
-        alert('Login failed');
-      }
+      // Always login on frontend even if API is missing (Vercel deployment)
+      onLogin(email);
     } catch(err) {
-      console.error(err);
-      // Fallback if plugin not loaded properly right away
+      console.log('API not found, using local mode');
       onLogin(email); 
     }
     setLoading(false);
