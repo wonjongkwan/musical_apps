@@ -88,6 +88,7 @@ for (let i = 1; i <= 50; i++) {
     icon: baseSong.icon,
     audioUrl: baseSong.audioUrl,
     lyrics: baseSong.lyrics,
-    requiredAccuracy: requiredAccuracy
+    requiredAccuracy: requiredAccuracy,
+    isVocal: stage <= 2
   });
 }

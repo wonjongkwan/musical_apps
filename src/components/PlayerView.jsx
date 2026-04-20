@@ -194,6 +194,8 @@ function PlayerView({ song, onBack, currentUserEmail }) {
         <audio 
           ref={audioRef} 
           src={song.audioUrl} 
+          playsInline 
+          webkit-playsinline="true"
           onTimeUpdate={handleTimeUpdate} 
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={handleAudioEnded}
@@ -209,6 +211,11 @@ function PlayerView({ song, onBack, currentUserEmail }) {
       </div>
 
       <div className="lyrics-container">
+        {song.isVocal && currentTime < 5 && (
+          <div style={{ color: 'var(--secondary-color)', fontWeight: 800, marginBottom: '10px', fontSize: '14px' }}>
+            🎤 VOCAL GUIDE MODE
+          </div>
+        )}
         <div className="mic-status-container">
            <div className={`mic-button ${isListening ? 'listening' : ''}`}>
              🎙️

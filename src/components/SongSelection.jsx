@@ -51,9 +51,10 @@ function SongSelection({ songs, onSelect, currentUserEmail }) {
                     className="path-node-wrapper"
                     style={{ transform: `translateX(${offset})` }}
                   >
-                    <div className="node-label" style={{ color: isLocked ? '#AFAFAF' : 'var(--text-main)' }}>
-                      Level {song.level}: {song.title} <br/>
-                      <span style={{ fontSize: '10px' }}>Pass: {song.requiredAccuracy}%</span>
+                    <div className="node-label" style={{ color: isLocked ? '#AFAFAF' : 'var(--text-main)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{ fontWeight: 800 }}>Level {song.level}: {song.title}</div>
+                      <div style={{ fontSize: '10px', opacity: 0.8 }}>Pass: {song.requiredAccuracy}%</div>
+                      {song.isVocal && !isLocked && <div style={{ fontSize: '10px', backgroundColor: 'var(--secondary-color)', color: 'white', padding: '2px 8px', borderRadius: '10px', marginTop: '4px' }}>🎤 Vocal Guide</div>}
                     </div>
                     <div 
                       className={`path-node ${isLocked ? 'locked' : ''}`}
