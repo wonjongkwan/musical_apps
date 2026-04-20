@@ -1,0 +1,6 @@
+git init
+git add .
+git commit -m "첫 번째 뮤지컬 앱 완성"
+git branch -M main
+git remote add origin https://github.com/wonjongkwan/musical_apps.git
+git push -u origin main
